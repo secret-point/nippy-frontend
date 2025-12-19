@@ -137,14 +137,32 @@ class AuthService {
   async loginWithGoogle(googleToken: string): Promise<AuthResponse> {
     try {
       const response = await api.post('/auth/google', { token: googleToken });
-      const { user, accessToken, refreshToken } = response.data;
+      const { user, accessToken, refreshToken, token } = response.data;
 
-      // Store tokens in localStorage
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-      localStorage.setItem('user', JSON.stringify(user));
+      // Store 'token' in localStorage (required by API interceptor)
+      // Also store accessToken/refreshToken if provided
+      if (token) {
+        localStorage.setItem('token', token);
+      } else if (accessToken) {
+        // Fallback: use accessToken as token if token not provided
+        localStorage.setItem('token', accessToken);
+      }
+      
+      // Store additional tokens if provided
+      if (refreshToken) {
+        localStorage.setItem('refreshToken', refreshToken);
+      }
+      
+      // Store user data
+      if (user) {
+        localStorage.setItem('user', JSON.stringify(user));
+      }
 
-      return response.data;
+      return {
+        user: user || {} as AuthUser,
+        token: token || accessToken || '',
+        requiresVerification: user?.requiresVerification
+      };
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Google sign in failed');
     }

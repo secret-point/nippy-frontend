@@ -15,7 +15,8 @@ const api = axios.create({
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    // Check for 'token' first (standard), then 'accessToken' as fallback (for Google OAuth)
+    const token = localStorage.getItem('token') || localStorage.getItem('accessToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -32,11 +33,13 @@ api.interceptors.response.use(
   async (error) => {
     if (error.response?.status === 401) {
       // Clear tokens and redirect to login
+      debugger;
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      
+
       // Redirect to login page
-      window.location.href = '/login';
+      debugger;
+      window.location.href = '/client-login';
     }
 
     return Promise.reject(error);
@@ -47,13 +50,13 @@ export default api;
 export const API_CONFIG = {
   // Base URL for the API - update this with your actual backend URL
   BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
-  
+
   // API Version
   VERSION: 'v1',
-  
+
   // Timeout for requests (in milliseconds)
   TIMEOUT: 30000,
-  
+
   // Default headers
   DEFAULT_HEADERS: {
     'Content-Type': 'application/json',

@@ -28,6 +28,8 @@ import ContactSupport from './pages/ContactSupport'
 import Notifications from './pages/Notifications'
 import ClientLayout from './components/ClientLayout'
 import { ClientLogin } from './pages/ClientLogin'
+import { GoogleAuthCallback } from './pages/GoogleAuthCallback'
+import { GoogleOAuthCallback } from './pages/GoogleOAuthCallback'
 
 type AuthPage = 'login' | 'reset-password' | 'check-email'
 type UserRole = 'super_admin' | 'moderator'
@@ -156,6 +158,10 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* Google OAuth callback routes */}
+        <Route path="/oauth2callback" element={<GoogleOAuthCallback />} />
+        <Route path="/auth/success" element={<GoogleAuthCallback />} />
+
         {/* Client registration route - no layout needed */}
         <Route path="/client-login" element={<ClientLogin />} />
 
